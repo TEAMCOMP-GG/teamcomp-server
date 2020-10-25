@@ -2,9 +2,10 @@ import StatusCodes from 'http-status-codes';
 import { Request, Response } from 'express';
 import { paramMissingError, IRequest } from '@shared/constants';
 import { IPlayers } from '@entities/players';
-import { getPlayerByName } from '../../riot';
+import { client, getPlayerByName } from '../../riot';
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
+const host = 'https://euw1.api.riotgames.com'; // TODO temp
 
 export const scoutPlayers = async (
   req: Request,
@@ -13,7 +14,7 @@ export const scoutPlayers = async (
   const players: IPlayers = req.body;
   const allies = await Promise.all(
     players.allies.map(async player => {
-      const { data } = await getPlayerByName(player);
+      const { data } = await getPlayerByName(client, host, player);
       return {
         allignment: 'ally',
         ...data,
@@ -22,7 +23,7 @@ export const scoutPlayers = async (
   );
   const enemies = await Promise.all(
     players.enemies.map(async player => {
-      const { data } = await getPlayerByName(player);
+      const { data } = await getPlayerByName(client, host, player);
       return {
         allignment: 'enemy',
         ...data,
